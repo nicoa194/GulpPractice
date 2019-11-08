@@ -11,3 +11,20 @@ const paths = {
     templates: './templates'
 }
 
+gulp.task('SCSSLint', function () {
+    return gulp.src([
+            `${paths.dev}/*.scss`,
+            `${paths.dev}/**/*.scss`,
+            `${paths.dev}/**/**/*.scss`,
+            `${paths.dev}/**/**/**/*.scss`,
+            `!${paths.dev}/packages/*.scss`
+        ])
+        .pipe(sassLint({
+            options: {
+                formatter: 'stylish'
+            },
+            configFile: '.scsslint.yml'
+        }))
+        .pipe(sassLint.format())
+        .pipe(sassLint.failOnError())
+});
