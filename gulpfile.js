@@ -1,6 +1,6 @@
 const gulp = require('gulp')
-const sassLint = require('gulp-sass-lint'),
-const ESlint = require('gulp-eslint');
+const babel = require('gulp-babel');
+const sass = require('gulp-sass')
 
 const paths = {
     dev: './src',
@@ -11,20 +11,24 @@ const paths = {
     templates: './templates'
 }
 
-gulp.task('SCSSLint', function () {
+gulp.task('babel', () => {
     return gulp.src([
-            `${paths.dev}/*.scss`,
-            `${paths.dev}/**/*.scss`,
-            `${paths.dev}/**/**/*.scss`,
-            `${paths.dev}/**/**/**/*.scss`,
-            `!${paths.dev}/packages/*.scss`
-        ])
-        .pipe(sassLint({
-            options: {
-                formatter: 'stylish'
-            },
-            configFile: '.scsslint.yml'
-        }))
-        .pipe(sassLint.format())
-        .pipe(sassLint.failOnError())
+        `${paths.dev}/*.js`
+    ])
+    .pipe(babel({
+        presets: ["@babel/preset-env"]
+    }))
+    .pipe(gulp.dest(`${paths.distJs}`));
+})
+
+gulp.task('sass', () => {
+    return gulp.src(`${paths.dev}/sass/*.scss`)
+      .pipe(sass.sync({outputStyle: 'compressed'}).on('error', sass.logError))
+      .pipe(gulp.dest('./css'));
+   });
+
+gulp.task('watch', () => {
+    gulp.watch(`${paths.dev}/sass/*.scss`, gulp.series('sass'));
+    gulp.watch(`${paths.dev}/**/*.js`, gulp.series('babel'));
+    gulp.watch(`${paths.dev}/*.js`, gulp.series('babel'));
 });
